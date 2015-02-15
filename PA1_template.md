@@ -1,16 +1,22 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
 
-```{r}
+
+```r
 data <-read.csv("./activity.csv",sep=",",head=T,colClasses=c("integer","Date","integer"))
 head(data)
+```
+
+```
+##   steps       date interval
+## 1    NA 2012-10-01        0
+## 2    NA 2012-10-01        5
+## 3    NA 2012-10-01       10
+## 4    NA 2012-10-01       15
+## 5    NA 2012-10-01       20
+## 6    NA 2012-10-01       25
 ```
 
 
@@ -20,16 +26,21 @@ head(data)
 2. Plot the histogram.
 3. Calculate mean and median.
 
-```{r}
+
+```r
 totalStepsPerDay <- sapply(split(data$steps,data$date),sum,na.rm=T)
 
 hist(totalStepsPerDay)
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png) 
+
+```r
 meanPerDay <- mean(totalStepsPerDay )
 MedianPerDay <- median(totalStepsPerDay)
 ```
 
-The mean of number of steps is **`r meanPerDay`** and median is **`r MedianPerDay`.**  
+The mean of number of steps is **9354.2295082** and median is **10395.**  
 
 ## What is the average daily activity pattern?
 
@@ -38,24 +49,36 @@ The mean of number of steps is **`r meanPerDay`** and median is **`r MedianPerDa
 3. Plot 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis).
 4. Find the interval that contain maximum number of steps. 
 
-```{r fig.width=15}
+
+```r
 avrgPerInterval<-sapply(split(data$steps,data$interval),mean,na.rm=T)
 intervals<- unique(data$interval)
 plot(x=intervals,y=avrgPerInterval,type='l',xlab='5-minute intervals',ylab='average number of step')
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
+
+```r
 totPerInterval<-sapply(split(data$steps,data$interval),sum,na.rm=T)
 indMax <- which.max(totPerInterval)
 intervaleMax <- intervals[indMax]
-
 ```
 
-The 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps is **`r intervaleMax`** and it contain **`r totPerInterval[indMax]`** steps. 
+The 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps is **835** and it contain **10927** steps. 
 ## Imputing missing values
 
 Remove all missing values form data and build new dataSet.
 
-```{r}
+
+```r
 nrow(na.omit(data))
+```
+
+```
+## [1] 15264
+```
+
+```r
 NewData<-data
 for(i in 1:nrow(data)){
     if(is.na(data$steps[i])){
@@ -67,25 +90,37 @@ for(i in 1:nrow(data)){
 1. Plot the new histogram.
 2. Calculate new mean and median after removing missing values.
 
-```{r}
+
+```r
 totalStepsPerDay1 <- sapply(split(NewData$steps,NewData$date),sum,na.rm=T)
 hist(totalStepsPerDay1)
-
-meanPerDay1 <- mean(totalStepsPerDay1)
-MedianPerDay1 <- median(totalStepsPerDay1)
-
 ```
 
-The new mean of number of steps is **`r meanPerDay1`** and the old one is **`r meanPerDay`**.  
-The new median is **`r MedianPerDay1`** and the old one is **`r MedianPerDay`**.  
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
+
+```r
+meanPerDay1 <- mean(totalStepsPerDay1)
+MedianPerDay1 <- median(totalStepsPerDay1)
+```
+
+The new mean of number of steps is **1.0766189\times 10^{4}** and the old one is **9354.2295082**.  
+The new median is **1.0766189\times 10^{4}** and the old one is **10395**.  
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
 Function for detrmine using Date if this day is weekend or weekday.
 
-```{r}
+
+```r
 library("reshape")
 Sys.setlocale("LC_TIME", "English")
+```
+
+```
+## [1] "English_United States.1252"
+```
+
+```r
 weekEndDay<-function(x){
     if(weekdays(x)  %in% c( "Saturday","Sunday")){
         "Weekend"
@@ -99,7 +134,8 @@ weekEndDay<-function(x){
 1. Add new column in data idicate if this day is weekend or week day.
 2. Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval       (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). 
 
-```{r}
+
+```r
 weekend <- sapply(data$date,weekEndDay)
 data <- cbind(data,weekend)
 data <- cbind(data,weekend)
@@ -115,9 +151,12 @@ nData <- rbind(data1,data2)
 ```
 
     
-```{r fig.width=15}
+
+```r
 library("lattice")
 xyplot(data=nData ,steps~interval|nature,layout=c(1,2),type="l",ylab="Number of steps",lwd=2)
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png) 
 
 ### People at weekend does not work and dont walk as weekdays.
